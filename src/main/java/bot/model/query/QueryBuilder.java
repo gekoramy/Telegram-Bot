@@ -33,7 +33,7 @@ public class QueryBuilder implements Regex {
         String tmp = build();
 
         if (tmp.getBytes().length >= MAX_BYTES)
-            throw new OutOfMemoryError("callback_data cannot exceed " + MAX_BYTES + " bytes of memory");
+            throw new OutOfMemoryError("callback_data cannot exceed " + MAX_BYTES + " bytes of memory\n" + tmp.getBytes().length + " Bytes : " + tmp);
 
         if (clear)
             map.clear();
