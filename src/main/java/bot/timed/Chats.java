@@ -1,7 +1,6 @@
 package bot.timed;
 
 import bot.model.Command;
-import org.jetbrains.annotations.Contract;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +47,6 @@ public class Chats {
             this.updatesExecuted = new ArrayList<>();
         }
 
-        @Contract(pure = true)
         public Command getCommand() {
             return command;
         }

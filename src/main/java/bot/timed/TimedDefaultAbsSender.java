@@ -1,13 +1,12 @@
 package bot.timed;
 
-import org.jetbrains.annotations.Nullable;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
-import org.telegram.telegrambots.api.methods.send.*;
+import org.telegram.telegrambots.api.methods.send.SendLocation;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 import java.util.*;

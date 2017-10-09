@@ -1,7 +1,5 @@
 package bot.model.query;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +18,6 @@ public class QueryBuilder implements Regex {
         return this;
     }
 
-    @NotNull
     private String build() {
         StringBuilder result = new StringBuilder();
         for (Map.Entry<String, String> entry : map.entrySet()) {

@@ -10,11 +10,9 @@ import bot.model.handling.HandleLocation;
 import bot.model.query.Query;
 import bot.model.query.QueryParser;
 import bot.timed.TimedAbsSender;
-import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.inlinequery.InlineQuery;
-import org.telegram.telegrambots.bots.AbsSender;
 
 import java.io.InvalidClassException;
 import java.util.Collection;
@@ -49,7 +47,6 @@ public class CommandRegistry {
      * @param command viaggia.command which may have the bot username
      * @return unique viaggia.command without bot username
      */
-    @NotNull
     private String removeUsernameFromCommandIfNeeded(String command) {
         return command.replace("@" + this.botUsername, "").trim();
     }
