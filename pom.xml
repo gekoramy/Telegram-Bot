@@ -102,7 +102,7 @@
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>3.3</version>
+            <version>3.4</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

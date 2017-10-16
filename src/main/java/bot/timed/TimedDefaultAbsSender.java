@@ -7,6 +7,7 @@ import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMa
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 import java.util.*;
@@ -37,25 +38,27 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
         mSendTimer.schedule(new MessageSenderTask(), MANY_CHATS_SEND_INTERVAL, MANY_CHATS_SEND_INTERVAL);
     }
 
-    /**
-     * if (method instanceof SendBundleAnswerCallbackQuery) {
-     *     super.execute((Method) ((SendBundleAnswerCallbackQuery) method).getMethod());
-     *     super.execute(((SendBundleAnswerCallbackQuery) method).getAnswerCallbackQuery());
-     * } else {
-     *     super.execute((Method) method);
-     * }
-     * @param method to be sent
-     * @param <T>
-     * @param <Method>
-     */
-    protected abstract <T extends Serializable, Method extends BotApiMethod<T>> void syncExecute(Object method);
+    protected abstract void onFailure(Exception e);
+
+    private <T extends Serializable, Method extends BotApiMethod<T>> void syncExecute(Object method) {
+        try {
+            if (method instanceof SendBundleAnswerCallbackQuery) {
+                super.execute((Method) ((SendBundleAnswerCallbackQuery) method).getMethod());
+                super.execute(((SendBundleAnswerCallbackQuery) method).getAnswerCallbackQuery());
+            } else {
+                super.execute((Method) method);
+            }
+        } catch (TelegramApiException e) {
+            onFailure(e);
+        }
+    }
 
     private synchronized void syncExecute(long chatId, Object method) {
         try {
             syncExecute(method);
             Chats.update(chatId, System.currentTimeMillis());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            onFailure(e);
         }
     }
 
@@ -185,7 +188,7 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
             return WAIT;
         }
 
-        public synchronized Object getMessage(long currentTime) {
+        synchronized Object getMessage(long currentTime) {
             mLastSendTime = currentTime;
             return mQueue.poll();
         }
