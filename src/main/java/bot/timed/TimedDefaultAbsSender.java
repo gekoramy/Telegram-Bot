@@ -11,9 +11,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -34,8 +32,9 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
 
     TimedDefaultAbsSender(DefaultBotOptions options) {
         super(options);
-        Timer mSendTimer = new Timer(true);
-        mSendTimer.schedule(new MessageSenderTask(), MANY_CHATS_SEND_INTERVAL, MANY_CHATS_SEND_INTERVAL);
+
+        ScheduledExecutorService mSendExecutor = Executors.newSingleThreadScheduledExecutor();
+        mSendExecutor.scheduleWithFixedDelay(new MessageSenderRunnable(), 0, MANY_CHATS_SEND_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     protected abstract void onFailure(Exception e);
@@ -90,7 +89,7 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
         mSendRequested.set(true);
     }
 
-    private final class MessageSenderTask extends TimerTask {
+    private final class MessageSenderRunnable implements Runnable {
         @Override
         public void run() {
             // There're messages which has to be sent
