@@ -22,16 +22,23 @@ public class InlineKeyboardMarkupBuilder {
      */
     private final static int MAX_COLUMNS = 7;
 
-    private int columns = 5;
     private InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
     private List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
 
-    public InlineKeyboardMarkupBuilder setColumns(int columns) {
-        this.columns = columns > MAX_COLUMNS ? MAX_COLUMNS : columns < 1 ? 1 : columns;
+    public InlineKeyboardMarkupBuilder reset() {
+        inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        keyboardRows = new ArrayList<>();
+
         return this;
     }
 
-    public InlineKeyboardMarkupBuilder addSeparateRowsKeyboardButtons(List<Map.Entry<String, String>> entryButtons) {
+    public InlineKeyboardMarkupBuilder addKeyboardRow(List<InlineKeyboardButton> row) {
+        keyboardRows.add(row);
+        return this;
+    }
+
+    public InlineKeyboardMarkupBuilder addSeparateRowsKeyboardButtons(int columns, List<Map.Entry<String, String>> entryButtons) {
+        columns = columns > MAX_COLUMNS ? MAX_COLUMNS : columns < 1 ? 1 : columns;
 
         List<List<Map.Entry<String, String>>> rows = Lists.partition(entryButtons, columns);
 
@@ -85,18 +92,13 @@ public class InlineKeyboardMarkupBuilder {
         return this;
     }
 
-    public InlineKeyboardMarkup build() throws EmptyKeyboardException {
+    public InlineKeyboardMarkup build(boolean reset) throws EmptyKeyboardException {
         if (keyboardRows.isEmpty())
             throw new EmptyKeyboardException();
 
         InlineKeyboardMarkup tmp = inlineKeyboardMarkup.setKeyboard(keyboardRows);
-        clear();
-        return tmp;
-    }
 
-    private void clear() {
-        columns = 5;
-        inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        keyboardRows = new ArrayList<>();
+        if (reset) reset();
+        return tmp;
     }
 }

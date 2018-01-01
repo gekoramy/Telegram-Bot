@@ -18,6 +18,10 @@ public class Chats {
 
     private static final Map<Long, Bundle> chats = new HashMap<>();
 
+    public static Set<Long> getChats() {
+        return chats.keySet();
+    }
+
     public static Command getCommand(long chatId) {
         chats.putIfAbsent(chatId, new Bundle(new Command("start", "")));
         return chats.get(chatId).getCommand();

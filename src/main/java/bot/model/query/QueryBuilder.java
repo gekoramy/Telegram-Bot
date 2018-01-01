@@ -10,6 +10,12 @@ public class QueryBuilder implements Regex {
     private Map<String, String> map = new HashMap<>();
     private static final int MAX_BYTES = 64;
 
+    public QueryBuilder reset() {
+        map.clear();
+
+        return this;
+    }
+
     protected QueryBuilder put(String key, String value) {
         if (build().getBytes().length >= MAX_BYTES)
             throw new OutOfMemoryError("callback_data cannot exceed " + MAX_BYTES + " bytes of memory");
@@ -26,15 +32,13 @@ public class QueryBuilder implements Regex {
         return result.toString();
     }
 
-    public String build(boolean clear) {
+    public String build(boolean reset) {
         String tmp = build();
 
         if (tmp.getBytes().length >= MAX_BYTES)
             throw new OutOfMemoryError("callback_data cannot exceed " + MAX_BYTES + " bytes of memory\n" + tmp.getBytes().length + " Bytes : " + tmp);
 
-        if (clear)
-            map.clear();
-
+        if (reset) reset();
         return tmp;
     }
 }

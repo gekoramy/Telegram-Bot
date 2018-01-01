@@ -23,12 +23,12 @@ import java.nio.charset.StandardCharsets;
  */
 public abstract class TimedTelegramLongPollingBot extends TimedDefaultAbsSender implements LongPollingBot {
 
-    public TimedTelegramLongPollingBot() {
-        this(ApiContext.getInstance(DefaultBotOptions.class));
+    public TimedTelegramLongPollingBot(long maxMessagesPerMinute) {
+        this(ApiContext.getInstance(DefaultBotOptions.class), maxMessagesPerMinute);
     }
 
-    public TimedTelegramLongPollingBot(DefaultBotOptions options) {
-        super(options);
+    public TimedTelegramLongPollingBot(DefaultBotOptions options, long maxMessagesPerMinute) {
+        super(options, maxMessagesPerMinute);
     }
 
     public void clearWebhook() throws TelegramApiRequestException {
@@ -83,9 +83,7 @@ public abstract class TimedTelegramLongPollingBot extends TimedDefaultAbsSender 
                         httpclient.close();
                     }
                 }
-
             }
-
         } catch (JSONException var40) {
             throw new TelegramApiRequestException("Error deserializing setWebhook method response", var40);
         } catch (IOException var41) {

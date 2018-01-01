@@ -41,11 +41,11 @@ public class CommandRegistry {
     }
 
     /**
-     * Remove the bot username from the viaggia.command
+     * Remove the bot username from the command
      * (used only in the group chats)
      *
-     * @param command viaggia.command which may have the bot username
-     * @return unique viaggia.command without bot username
+     * @param command command which may have the bot username
+     * @return unique command without bot username
      */
     private String removeUsernameFromCommandIfNeeded(String command) {
         return command.replace("@" + this.botUsername, "").trim();
@@ -88,7 +88,7 @@ public class CommandRegistry {
 
     /**
      * Execute the 'respondCommand' method of the corrected UseCaseCommand
-     * interpreted by extracting the viaggia.command from 'message'
+     * interpreted by extracting the command from 'message'
      *
      * @param absSender used to send the respond(s)
      * @param message   message to respond
@@ -101,7 +101,7 @@ public class CommandRegistry {
         String command;
         String parameters = null;
 
-        // /viaggia.command [optional] [argument]
+        // /command [optional] [argument]
         String text = message.getText();
         String commandMessage = text.substring(1);
 
@@ -129,12 +129,12 @@ public class CommandRegistry {
 
     /**
      * Execute the 'respondMessage' method of the corrected UseCaseCommand
-     * required by the argument 'viaggia.command'
+     * required by the argument 'command'
      *
      * @param absSender used to send the respond(s)
      * @param message   message to respond
-     * @param command   unique viaggia.command
-     * @throws NotHandledCommandException there is no Command-UseCaseCommand association for this viaggia.command
+     * @param command   unique command
+     * @throws NotHandledCommandException there is no Command-UseCaseCommand association for this command
      * @throws IllegalArgumentException   Message doesn't have text
      */
     /*package*/ final void respondMessage(TimedAbsSender absSender, Message message, Command command) throws NotHandledCommandException {
@@ -150,8 +150,8 @@ public class CommandRegistry {
     /**
      * @param absSender used to send the respond(s)
      * @param message   message to respond
-     * @param command   unique viaggia.command
-     * @throws NotHandledCommandException there is no Command-UseCaseCommand association for this viaggia.command
+     * @param command   unique command
+     * @throws NotHandledCommandException there is no Command-UseCaseCommand association for this command
      * @throws IllegalArgumentException   Message doesn't have a location
      */
     /*package*/ final void respondLocation(TimedAbsSender absSender, Message message, Command command) throws NotHandledCommandException, InvalidClassException {
@@ -169,7 +169,7 @@ public class CommandRegistry {
 
     /**
      * Execute the 'respondCallbackQuery' method of the corrected UseCaseCommand
-     * interpreted by extracting the viaggia.command from 'cbq'
+     * interpreted by extracting the command from 'cbq'
      * this extraction is made by the QueryParser
      *
      * @param absSender used to send the respond(s)
@@ -189,7 +189,7 @@ public class CommandRegistry {
 
     /**
      * Execute the 'respondInlineQuery' method of the corrected UseCaseCommand
-     * interpreted by extracting the viaggia.command from parsed 'inlineQuery'
+     * interpreted by extracting the command from parsed 'inlineQuery'
      * this extraction is made by the QueryParser
      *
      * @param absSender   used to send the respond(s)
@@ -209,7 +209,7 @@ public class CommandRegistry {
         String command;
         String parameters = null;
 
-        // viaggia.command [optional] [argument]
+        // command [optional] [argument]
         String commandMessage = inlineQuery.getQuery().toLowerCase();
 
         if (commandMessage.contains(" ")) {

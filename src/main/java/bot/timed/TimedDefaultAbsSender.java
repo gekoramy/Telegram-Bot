@@ -24,14 +24,15 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
     private static final long MANY_CHATS_SEND_INTERVAL = 33;
     private static final long ONE_CHAT_SEND_INTERVAL = 1000;
     private static final long CHAT_INACTIVE_INTERVAL = 1000 * 60 * 10;
-    private static final long MAX_MESSAGES_PER_MINUTE = 10;
+    private final long maxMessagesPerMinute;
 
     private final ConcurrentHashMap<String, MessageQueue> mMessagesMap = new ConcurrentHashMap<>(32, 0.75f, 1);
     private final ArrayList<MessageQueue> mSendQueues = new ArrayList<>();
     private final AtomicBoolean mSendRequested = new AtomicBoolean(false);
 
-    TimedDefaultAbsSender(DefaultBotOptions options) {
+    TimedDefaultAbsSender(DefaultBotOptions options, long maxMessagesPerMinute) {
         super(options);
+        this.maxMessagesPerMinute = maxMessagesPerMinute < 10 ? 10 : maxMessagesPerMinute;
 
         ScheduledExecutorService mSendExecutor = Executors.newSingleThreadScheduledExecutor();
         mSendExecutor.scheduleWithFixedDelay(new MessageSenderRunnable(), 0, MANY_CHATS_SEND_INTERVAL, TimeUnit.MILLISECONDS);
@@ -63,16 +64,32 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
 
     @Override
     public void execute(Object method) {
-        String chatId;
+        String chatId = getChatId(method);
         // Not every messages are limited per minute (for example AnswerCallbackQuery)
-        if (method instanceof SendMessage && (chatId = ((SendMessage) method).getChatId()) != null ||
-                method instanceof EditMessageText && (chatId = ((EditMessageText) method).getChatId()) != null ||
-                method instanceof SendLocation && (chatId = ((SendLocation) method).getChatId()) != null ||
-                method instanceof EditMessageReplyMarkup && (chatId = ((EditMessageReplyMarkup) method).getChatId()) != null ||
-                method instanceof SendBundleAnswerCallbackQuery && (chatId = ((SendBundleAnswerCallbackQuery) method).getChatId()) != null)
+        if (chatId != null) {
             sendTimed(chatId, method);
-        else
+        } else {
             syncExecute(method);
+        }
+    }
+
+    private String getChatId(Object obj) {
+        if (obj instanceof SendMessage)
+            return ((SendMessage) obj).getChatId();
+
+        if (obj instanceof SendLocation)
+            return ((SendLocation) obj).getChatId();
+
+        if (obj instanceof EditMessageText)
+            return ((EditMessageText) obj).getChatId();
+
+        if (obj instanceof EditMessageReplyMarkup)
+            return ((EditMessageReplyMarkup) obj).getChatId();
+
+        if (obj instanceof SendBundleAnswerCallbackQuery)
+            return ((SendBundleAnswerCallbackQuery) obj).getChatId();
+
+        return null;
     }
 
     private void sendTimed(String chatId, Object messageRequest) {
@@ -131,7 +148,7 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
             if (processNext) mSendRequested.set(true);
 
             // 2nd step
-            // Find oldest waiting queue and peek it's message
+            // Find oldest waiting queue and poll it's message
             MessageQueue sendQueue = null;
             long oldestPutTime = Long.MAX_VALUE;
             for (MessageQueue queue : mSendQueues) {
@@ -151,14 +168,14 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
         }
     }
 
-    private static class MessageQueue {
+    private class MessageQueue {
         private static final int EMPTY = 0;     // Queue is empty
         private static final int WAIT = 1;      // Queue has message(s) but not yet allowed to send
         private static final int DELETE = 2;    // None message of given queue was sent longer than CHAT_INACTIVE_INTERVAL, delete for optimisation
         private static final int SEND = 3;      // Queue has message(s) and ready to send
         private final long chatId;
         private final ConcurrentLinkedQueue<Object> mQueue = new ConcurrentLinkedQueue<>();
-        private long mLastSendTime;             //Time of last peek from queue
+        private long mLastSendTime;             //Time of last poll from queue
         private volatile long mLastPutTime;     //Time of last put into queue
 
         private MessageQueue(long chatId) {
@@ -175,7 +192,7 @@ public abstract class TimedDefaultAbsSender extends DefaultAbsSender implements 
             long interval = currentTime - mLastSendTime;
             boolean empty = mQueue.isEmpty();
 
-            if (!empty && interval > ONE_CHAT_SEND_INTERVAL && Chats.getSent(chatId, currentTime).size() < MAX_MESSAGES_PER_MINUTE)
+            if (!empty && interval > ONE_CHAT_SEND_INTERVAL && Chats.getSent(chatId, currentTime).size() < maxMessagesPerMinute)
                 return SEND;
 
             if (interval > CHAT_INACTIVE_INTERVAL)

@@ -28,7 +28,9 @@ public abstract class BotHandler extends TimedTelegramLongPollingBot {
     /**
      * Here should be registered all the UseCaseCommand
      */
-    protected BotHandler(String botName, String botToken) {
+    protected BotHandler(String botName, String botToken, long maxMessagesPerMinute) {
+        super(maxMessagesPerMinute);
+
         BOT_USERNAME = botName;
         BOT_TOKEN = botToken;
         commandRegistry = new CommandRegistry(BOT_USERNAME);

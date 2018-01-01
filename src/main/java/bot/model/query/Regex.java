@@ -9,7 +9,6 @@ public interface Regex {
 
     String REGEX = "\n";
     String TWO_DOTS = ":";
-
     String COMMAND = "cmd";
 
 }

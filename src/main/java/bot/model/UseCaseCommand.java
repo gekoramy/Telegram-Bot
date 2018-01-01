@@ -19,7 +19,7 @@ public abstract class UseCaseCommand {
 
     public UseCaseCommand(Command command) {
         if (command == null)
-            throw new IllegalArgumentException("viaggia.command cannot be null");
+            throw new IllegalArgumentException("command cannot be null");
 
         this.command = command;
     }
@@ -41,8 +41,8 @@ public abstract class UseCaseCommand {
     }
 
     /**
-     * Responds to an incomplete viaggia.command
-     * /viaggia.command [null / empty]
+     * Responds to an incomplete command
+     * /command [null / empty]
      *
      * @param absSender used to send the respond(s)
      * @param user      client
@@ -51,13 +51,13 @@ public abstract class UseCaseCommand {
     protected abstract void respondCommand(TimedAbsSender absSender, User user, Chat chat);
 
     /**
-     * Responds to a complete viaggia.command / arguments
-     * /viaggia.command [arguments]
+     * Responds to a complete command / arguments
+     * /command [arguments]
      *
      * @param absSender used to send the respond(s)
      * @param user      client
      * @param chat      client chat
-     * @param arguments arguments of a complete viaggia.command
+     * @param arguments arguments of a complete command
      */
     public abstract void respondMessage(TimedAbsSender absSender, User user, Chat chat, String arguments);
 
@@ -83,6 +83,7 @@ public abstract class UseCaseCommand {
              */
             case ParseMode.MARKDOWN:
                 return formattedText
+                        .trim()
                         .replaceAll("\\*", "")
                         .replaceAll("_", "")
                         .replaceAll("`", "")
@@ -97,6 +98,7 @@ public abstract class UseCaseCommand {
              */
             case ParseMode.HTML:
                 return formattedText
+                        .trim()
                         .replaceAll("<b>", "").replaceAll("</b>", "")
                         .replaceAll("<i>", "").replaceAll("</i>", "")
                         .replaceAll("<code>", "").replaceAll("</code>", "")

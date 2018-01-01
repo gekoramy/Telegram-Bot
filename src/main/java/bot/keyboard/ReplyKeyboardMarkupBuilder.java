@@ -21,9 +21,15 @@ public class ReplyKeyboardMarkupBuilder {
      */
     private final static int MAX_COLUMNS = 12;
 
-    private int columns = 1;
     private ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
     private List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+    public ReplyKeyboardMarkupBuilder reset() {
+        keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardRows = new ArrayList<>();
+
+        return this;
+    }
 
     public ReplyKeyboardMarkupBuilder setOneTimeKeyboard(Boolean oneTimeKeyboard) {
         keyboardMarkup.setOneTimeKeyboard(oneTimeKeyboard);
@@ -40,13 +46,13 @@ public class ReplyKeyboardMarkupBuilder {
         return this;
     }
 
-    public ReplyKeyboardMarkupBuilder setColumns(int columns) {
-        this.columns = columns > MAX_COLUMNS ? MAX_COLUMNS : columns < 1 ? 1 : columns;
+    public ReplyKeyboardMarkupBuilder addKeyboardRow(KeyboardRow row) {
+        keyboardRows.add(row);
         return this;
     }
 
-    public ReplyKeyboardMarkupBuilder setKeyboardButtons(List<String> textButtons) {
-
+    public ReplyKeyboardMarkupBuilder addKeyboardButtons(int columns, List<String> textButtons) {
+        columns = columns > MAX_COLUMNS ? MAX_COLUMNS : columns < 1 ? 1 : columns;
         List<List<String>> rows = Lists.partition(textButtons, columns);
 
         for (List<String> row : rows) {
@@ -77,18 +83,13 @@ public class ReplyKeyboardMarkupBuilder {
         return this;
     }
 
-    public ReplyKeyboardMarkup build() throws EmptyKeyboardException {
+    public ReplyKeyboardMarkup build(boolean reset) throws EmptyKeyboardException {
         if (keyboardRows.isEmpty())
             throw new EmptyKeyboardException();
 
         ReplyKeyboardMarkup tmp = keyboardMarkup.setKeyboard(keyboardRows);
-        clear();
-        return tmp;
-    }
 
-    private void clear() {
-        columns = 1;
-        keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardRows = new ArrayList<>();
+        if (reset) reset();
+        return tmp;
     }
 }
