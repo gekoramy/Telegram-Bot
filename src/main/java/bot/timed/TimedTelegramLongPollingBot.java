@@ -10,7 +10,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.telegram.telegrambots.ApiConstants;
 import org.telegram.telegrambots.ApiContext;
+import org.telegram.telegrambots.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.generics.LongPollingBot;
@@ -27,67 +29,29 @@ public abstract class TimedTelegramLongPollingBot extends TimedDefaultAbsSender 
         this(ApiContext.getInstance(DefaultBotOptions.class), maxMessagesPerMinute);
     }
 
-    public TimedTelegramLongPollingBot(DefaultBotOptions options, long maxMessagesPerMinute) {
+    private TimedTelegramLongPollingBot(DefaultBotOptions options, long maxMessagesPerMinute) {
         super(options, maxMessagesPerMinute);
     }
 
+    @Override
     public void clearWebhook() throws TelegramApiRequestException {
-        try {
-            CloseableHttpClient httpclient = HttpClientBuilder.create().setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
-            Throwable var2 = null;
-
-            try {
-                String url = this.getOptions().getBaseUrl() + this.getBotToken() + "/" + "setwebhook";
-                HttpGet httpGet = new HttpGet(url);
-                httpGet.setConfig(this.getOptions().getRequestConfig());
-                CloseableHttpResponse response = httpclient.execute(httpGet);
-                Throwable var6 = null;
-
-                try {
-                    HttpEntity ht = response.getEntity();
-                    BufferedHttpEntity buf = new BufferedHttpEntity(ht);
-                    String responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
-                    JSONObject jsonObject = new JSONObject(responseContent);
-                    if (!jsonObject.getBoolean("ok")) {
-                        throw new TelegramApiRequestException("Error removing old webhook", jsonObject);
-                    }
-                } catch (Throwable var36) {
-                    var6 = var36;
-                    throw var36;
-                } finally {
-                    if (response != null) {
-                        if (var6 != null) {
-                            try {
-                                response.close();
-                            } catch (Throwable var35) {
-                                var6.addSuppressed(var35);
-                            }
-                        } else {
-                            response.close();
-                        }
-                    }
-
-                }
-            } catch (Throwable var38) {
-                var2 = var38;
-                throw var38;
-            } finally {
-                if (httpclient != null) {
-                    if (var2 != null) {
-                        try {
-                            httpclient.close();
-                        } catch (Throwable var34) {
-                            var2.addSuppressed(var34);
-                        }
-                    } else {
-                        httpclient.close();
-                    }
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().setSSLHostnameVerifier(new NoopHostnameVerifier()).build()) {
+            String url = getOptions().getBaseUrl() + getBotToken() + "/" + SetWebhook.PATH;
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setConfig(getOptions().getRequestConfig());
+            try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+                HttpEntity ht = response.getEntity();
+                BufferedHttpEntity buf = new BufferedHttpEntity(ht);
+                String responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
+                JSONObject jsonObject = new JSONObject(responseContent);
+                if (!jsonObject.getBoolean(ApiConstants.RESPONSE_FIELD_OK)) {
+                    throw new TelegramApiRequestException("Error removing old webhook", jsonObject);
                 }
             }
-        } catch (JSONException var40) {
-            throw new TelegramApiRequestException("Error deserializing setWebhook method response", var40);
-        } catch (IOException var41) {
-            throw new TelegramApiRequestException("Error executing setWebook method", var41);
+        } catch (JSONException e) {
+            throw new TelegramApiRequestException("Error deserializing setWebhook method response", e);
+        } catch (IOException e) {
+            throw new TelegramApiRequestException("Error executing setWebook method", e);
         }
     }
 }

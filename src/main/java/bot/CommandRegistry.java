@@ -6,7 +6,6 @@ import bot.model.Command;
 import bot.model.UseCaseCommand;
 import bot.model.handling.HandleCallbackQuery;
 import bot.model.handling.HandleInlineQuery;
-import bot.model.handling.HandleLocation;
 import bot.model.query.Query;
 import bot.model.query.QueryParser;
 import bot.timed.TimedAbsSender;
@@ -29,8 +28,8 @@ public class CommandRegistry {
     private final QueryParser queryParser = new QueryParser();
 
     private final String botUsername;
-    private UseCaseCommand defaultCommand;
-    private UseCaseCommand defaultInlineCommand;
+    private UseCaseCommand defaultCmd;
+    private HandleInlineQuery defaultInlineCmd;
 
     /*package*/ CommandRegistry(String botUsername) {
         this.botUsername = botUsername;
@@ -68,22 +67,19 @@ public class CommandRegistry {
     /**
      * Optional UseCaseCommand used when a request doesn't use registered Commands
      *
-     * @param defaultCommand UseCaseCommand
+     * @param cmd UseCaseCommand
      */
-    public void setDefaultCommand(UseCaseCommand defaultCommand) {
-        this.defaultCommand = defaultCommand;
+    public void setDefaultCmd(UseCaseCommand cmd) {
+        this.defaultCmd = cmd;
     }
 
     /**
      * Optional UseCaseCommand used when an inline request doesn't use registered Commands
      *
-     * @param defaultInlineCommand UseCaseCommand
+     * @param cmd UseCaseCommand
      */
-    public void setDefaultInlineCommand(UseCaseCommand defaultInlineCommand) throws InvalidClassException {
-        if (!(defaultInlineCommand instanceof HandleCallbackQuery))
-            throw new InvalidClassException(defaultInlineCommand.getCommand().getCommandIdentifier() + " doesn't handle inline queries");
-
-        this.defaultInlineCommand = defaultInlineCommand;
+    public void setDefaultInlineCmd(HandleInlineQuery cmd) {
+        this.defaultInlineCmd = cmd;
     }
 
     /**
@@ -92,8 +88,9 @@ public class CommandRegistry {
      *
      * @param absSender used to send the respond(s)
      * @param message   message to respond
-     * @return true if there's an association or it's defined a defaultCommand
+     * @return true if there's an association or it's defined a defaultCmd
      */
+    @SuppressWarnings("UnusedReturnValue")
     /*package*/ final boolean respondCommand(TimedAbsSender absSender, Message message) {
         if (!message.hasText() || !message.isCommand())
             return false;
@@ -119,8 +116,8 @@ public class CommandRegistry {
             return true;
         }
 
-        if (this.defaultCommand != null) {
-            this.defaultCommand.respondCommand(absSender, message.getFrom(), message.getChat(), parameters);
+        if (this.defaultCmd != null) {
+            this.defaultCmd.respondCommand(absSender, message.getFrom(), message.getChat(), parameters);
             return true;
         }
 
@@ -141,30 +138,7 @@ public class CommandRegistry {
         if (!this.commandRegistryMap.containsKey(command.getCommandIdentifier()))
             throw new NotHandledCommandException(command);
 
-        if (!message.hasText())
-            throw new IllegalArgumentException("Message doesn't have text");
-
-        this.commandRegistryMap.get(command.getCommandIdentifier()).respondMessage(absSender, message.getFrom(), message.getChat(), message.getText());
-    }
-
-    /**
-     * @param absSender used to send the respond(s)
-     * @param message   message to respond
-     * @param command   unique command
-     * @throws NotHandledCommandException there is no Command-UseCaseCommand association for this command
-     * @throws IllegalArgumentException   Message doesn't have a location
-     */
-    /*package*/ final void respondLocation(TimedAbsSender absSender, Message message, Command command) throws NotHandledCommandException, InvalidClassException {
-        if (!this.commandRegistryMap.containsKey(command.getCommandIdentifier()))
-            throw new NotHandledCommandException(command);
-
-        if (!message.hasLocation())
-            throw new IllegalArgumentException("Message doesn't have a location");
-
-        if (!(this.commandRegistryMap.get(command.getCommandIdentifier()) instanceof HandleLocation))
-            throw new InvalidClassException(command.getCommandIdentifier() + " doesn't handle locations");
-
-        ((HandleLocation) this.commandRegistryMap.get(command.getCommandIdentifier())).respondLocation(absSender, message.getFrom(), message.getChat(), message.getLocation());
+        this.commandRegistryMap.get(command.getCommandIdentifier()).respondMessage(absSender, message);
     }
 
     /**
@@ -176,11 +150,15 @@ public class CommandRegistry {
      * @param cbq       CallbackQuery
      * @return true if there's an association
      */
+    @SuppressWarnings("UnusedReturnValue")
     /*package*/ final boolean respondCallbackQuery(TimedAbsSender absSender, CallbackQuery cbq) {
         Query query = queryParser.parse(cbq.getData());
 
         if (this.commandRegistryMap.containsKey(query.getCommandIdentifier()) && (this.commandRegistryMap.get(query.getCommandIdentifier()) instanceof HandleCallbackQuery)) {
-            ((HandleCallbackQuery) this.commandRegistryMap.get(query.getCommandIdentifier())).respondCallbackQuery(absSender, cbq, query);
+            if (cbq.getMessage() != null)
+                ((HandleCallbackQuery) this.commandRegistryMap.get(query.getCommandIdentifier())).respondCallbackQuery(absSender, cbq.getId(), query, cbq.getFrom(), cbq.getMessage());
+            else
+                ((HandleCallbackQuery) this.commandRegistryMap.get(query.getCommandIdentifier())).respondCallbackQuery(absSender, cbq.getId(), query, cbq.getFrom(), cbq.getInlineMessageId());
             return true;
         }
 
@@ -194,12 +172,13 @@ public class CommandRegistry {
      *
      * @param absSender   used to send the respond(s)
      * @param inlineQuery inlineQuery
-     * @return true if there's an association or it's defined a defaultCommand able to reply to inlineQuery
+     * @return true if there's an association or it's defined a defaultCmd able to reply to inlineQuery
      */
+    @SuppressWarnings("UnusedReturnValue")
     /*package*/ final boolean respondInlineQuery(TimedAbsSender absSender, InlineQuery inlineQuery) {
         if (!inlineQuery.hasQuery() && inlineQuery.getQuery().isEmpty()) {
-            if (this.defaultInlineCommand != null && this.defaultInlineCommand instanceof HandleInlineQuery) {
-                ((HandleInlineQuery) this.defaultInlineCommand).respondInlineQuery(absSender, inlineQuery.getFrom(), inlineQuery.getId(), "");
+            if (this.defaultInlineCmd != null) {
+                this.defaultInlineCmd.respondInlineQuery(absSender, inlineQuery.getFrom(), inlineQuery.getId(), "");
                 return true;
             }
 
@@ -224,8 +203,8 @@ public class CommandRegistry {
             return true;
         }
 
-        if (this.defaultInlineCommand != null && this.defaultInlineCommand instanceof HandleInlineQuery) {
-            ((HandleInlineQuery) this.defaultInlineCommand).respondInlineQuery(absSender, inlineQuery.getFrom(), inlineQuery.getId(), parameters);
+        if (this.defaultInlineCmd != null) {
+            this.defaultInlineCmd.respondInlineQuery(absSender, inlineQuery.getFrom(), inlineQuery.getId(), parameters);
             return true;
         }
 

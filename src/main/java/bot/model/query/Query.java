@@ -12,7 +12,7 @@ public class Query implements Regex {
 
     private Map<String, String> map;
 
-    public Query(Map map) {
+    public Query(Map<String, String> map) {
         this.map = map;
     }
 

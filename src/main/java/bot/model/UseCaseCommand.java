@@ -3,6 +3,7 @@ package bot.model;
 import bot.timed.TimedAbsSender;
 import org.telegram.telegrambots.api.methods.ParseMode;
 import org.telegram.telegrambots.api.objects.Chat;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
 
 /**
@@ -29,37 +30,27 @@ public abstract class UseCaseCommand {
     }
 
     public void init() {
-
-    }
-
-    public void respondCommand(TimedAbsSender absSender, User user, Chat chat, String arguments) {
-        if (arguments == null || arguments.trim().isEmpty()) {
-            respondCommand(absSender, user, chat);
-        } else {
-            respondMessage(absSender, user, chat, arguments);
-        }
     }
 
     /**
-     * Responds to an incomplete command
-     * /command [null / empty]
+     * Responds to a command
+     * /command [arguments]
      *
      * @param absSender used to send the respond(s)
      * @param user      client
      * @param chat      client chat
+     * @param arguments possible [arguments]
      */
-    protected abstract void respondCommand(TimedAbsSender absSender, User user, Chat chat);
+    public abstract void respondCommand(TimedAbsSender absSender, User user, Chat chat, String arguments);
 
     /**
      * Responds to a complete command / arguments
      * /command [arguments]
      *
      * @param absSender used to send the respond(s)
-     * @param user      client
-     * @param chat      client chat
-     * @param arguments arguments of a complete command
+     * @param message   message to respond
      */
-    public abstract void respondMessage(TimedAbsSender absSender, User user, Chat chat, String arguments);
+    public abstract void respondMessage(TimedAbsSender absSender, Message message);
 
     /**
      * Compare formatted and unformatted text

@@ -8,12 +8,10 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.inlinequery.InlineQuery;
 
-import java.io.InvalidClassException;
-
 /**
  * Created by Luca Mosetti on 2017
  * <p>
- * Handle all the bot updates, which could be:
+ * Handle some bot updates, which could be:
  * - Messages
  * - CallbackQuery
  * - InlineQuery
@@ -27,6 +25,10 @@ public abstract class BotHandler extends TimedTelegramLongPollingBot {
 
     /**
      * Here should be registered all the UseCaseCommand
+     *
+     * @param botName              bot name
+     * @param botToken             bot token
+     * @param maxMessagesPerMinute max messages per minute to same chat (shouldn't be greater than 20)
      */
     protected BotHandler(String botName, String botToken, long maxMessagesPerMinute) {
         super(maxMessagesPerMinute);
@@ -41,21 +43,20 @@ public abstract class BotHandler extends TimedTelegramLongPollingBot {
     }
 
     /**
-     * @param update update received, which could be:
+     * @param update update received, the handled ones are:
      *               - Messages
      *               - CallbackQuery
      *               - InlineQuery
      */
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage())
+        if (update.hasMessage()) {
             onMessageUpdate(update.getMessage());
-
-        if (update.hasCallbackQuery())
+        } else if (update.hasCallbackQuery()) {
             onCallbackQueryUpdate(update.getCallbackQuery());
-
-        if (update.hasInlineQuery())
+        } else if (update.hasInlineQuery()) {
             onInlineQueryUpdate(update.getInlineQuery());
+        }
     }
 
     @Override
@@ -70,28 +71,25 @@ public abstract class BotHandler extends TimedTelegramLongPollingBot {
 
     /**
      * Once understood that the update is a message
-     * distinguishes command message, simply-text message, location.
+     * distinguishes command message, from others.
      * It gives the update to the commandRegistry, which will
      * understand which UseCaseCommand should respond
      *
-     * @param message message update received, which could be:
+     * @param message message update received, which could contain:
      *                - text
      *                - location
+     *                - voice
      *                - ...
      */
     protected void onMessageUpdate(Message message) {
         try {
-            if (message.hasText()) {
-                if (message.isCommand())
-                    commandRegistry.respondCommand(this, message);
-                else
-                    commandRegistry.respondMessage(this, message, Chats.getCommand(message.getChatId()));
+            if (message.isCommand()) {
+                commandRegistry.respondCommand(this, message);
+            } else {
+                commandRegistry.respondMessage(this, message, Chats.getCommand(message.getChatId()));
             }
 
-            if (message.hasLocation()) {
-                commandRegistry.respondLocation(this, message, Chats.getCommand(message.getChatId()));
-            }
-        } catch (NotHandledCommandException | IllegalArgumentException | InvalidClassException e) {
+        } catch (NotHandledCommandException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
