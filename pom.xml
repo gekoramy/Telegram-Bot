@@ -5,29 +5,35 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.gekoramy</groupId>
-    <artifactId>telegram-bot</artifactId>
-    <version>3.5.0</version>
+    <artifactId>telegrambots-usecases</artifactId>
+    <version>3.6.0</version>
     <packaging>jar</packaging>
 
-    <name>telegram-bot</name>
+    <name>Telegram UseCase Bot</name>
+    <url>https://github.com/gekoramy/Telegram-UseCaseBot</url>
     <description>Library to create Telegram Bots in Java</description>
-    <url>https://github.com/gekoramy/Telegram-Bot</url>
+    <issueManagement>
+        <url>https://github.com/gekoramy/Telegram-UseCaseBot/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
         </license>
     </licenses>
     <developers>
         <developer>
             <name>Luca Mosetti</name>
             <email>luka.mosetti@gmail.com</email>
+            <url>https://github.com/gekoramy</url>
+            <id>gekoramy</id>
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git://github.com/gekoramy/Telegram-Bot.git</connection>
-        <developerConnection>scm:git:ssh://github.com:gekoramy/Telegram-Bot.git</developerConnection>
-        <url>https://github.com/gekoramy/Telegram-Bot/tree/master/</url>
+        <url>https://github.com/gekoramy/Telegram-UseCaseBot/tree/master/</url>
+        <connection>scm:git:git://github.com/gekoramy/Telegram-UseCaseBot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:gekoramy/Telegram-UseCaseBot.git</developerConnection>
     </scm>
 
     <distributionManagement>
@@ -103,7 +109,7 @@
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>3.5</version>
+            <version>3.6</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
