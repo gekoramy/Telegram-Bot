@@ -47,7 +47,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                             .setChatId(msg.getChatId())
             );
         }
-        monitor.sent(msg.getFrom(), editMessageText);
+        monitor.sent(cbq.getFrom(), editMessageText);
         return this;
     }
 
@@ -57,7 +57,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                         .setMessageId(msg.getMessageId())
                         .setChatId(msg.getChatId())
         );
-        monitor.sent(msg.getFrom(), editMessageReplyMarkup);
+        monitor.sent(cbq.getFrom(), editMessageReplyMarkup);
         return this;
     }
 
@@ -67,7 +67,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                         .setMessageId(msg.getMessageId())
                         .setChatId(msg.getChatId())
         );
-        monitor.sent(msg.getFrom(), editMessageLiveLocation);
+        monitor.sent(cbq.getFrom(), editMessageLiveLocation);
         return this;
     }
 
@@ -85,7 +85,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
      * @return formattedText.replaceAll(...).equals(unformattedText)
      * false if parseMode is not supported
      */
-    private boolean equalsFormattedTexts(String formattedText, String unformattedText, String parseMode) {
+    public boolean equalsFormattedTexts(String formattedText, String unformattedText, String parseMode) {
         switch (parseMode) {
             /*
              * *bold text*

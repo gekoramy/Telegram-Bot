@@ -10,7 +10,6 @@ import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageLiveLoc
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
-import org.telegram.telegrambots.api.objects.User;
 
 import java.io.Serializable;
 
@@ -24,16 +23,14 @@ import java.io.Serializable;
 public class InlineCallbackQueryResponder extends AbsResponder implements CallbackQueryEditor {
 
     private final CallbackQuery cbq;
-    private final User user;
 
     public InlineCallbackQueryResponder(TimedSender sender, Monitor monitor, String cmd, CallbackQuery cbq) {
         super(sender, monitor, cmd);
         this.cbq = cbq;
-        this.user = cbq.getFrom();
     }
 
     private void requestExecute(BotApiMethod<? extends Serializable> method) {
-        sender.requestExecute((long) user.getId(), method);
+        sender.requestExecute((long) cbq.getFrom().getId(), method);
     }
 
     public InlineCallbackQueryResponder answer(AnswerCallbackQuery answerCallbackQuery) {
@@ -43,19 +40,19 @@ public class InlineCallbackQueryResponder extends AbsResponder implements Callba
 
     public InlineCallbackQueryResponder send(EditMessageText editMessageText) {
         requestExecute(editMessageText.setInlineMessageId(cbq.getInlineMessageId()));
-        monitor.sent(user, editMessageText);
+        monitor.sent(cbq.getFrom(), editMessageText);
         return this;
     }
 
     public InlineCallbackQueryResponder send(EditMessageReplyMarkup editMessageReplyMarkup) {
         requestExecute(editMessageReplyMarkup.setInlineMessageId(cbq.getInlineMessageId()));
-        monitor.sent(user, editMessageReplyMarkup);
+        monitor.sent(cbq.getFrom(), editMessageReplyMarkup);
         return this;
     }
 
     public InlineCallbackQueryResponder send(EditMessageLiveLocation editMessageLiveLocation) {
         requestExecute(editMessageLiveLocation.setInlineMessageId(cbq.getInlineMessageId()));
-        monitor.sent(user, editMessageLiveLocation);
+        monitor.sent(cbq.getFrom(), editMessageLiveLocation);
         return this;
     }
 
