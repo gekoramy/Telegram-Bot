@@ -206,7 +206,8 @@ public class CommandRegistry {
                 this.commandRegistryMap.get(this.defaultInlineCmd).respondInlineQuery(
                         responder,
                         inlineQuery.getFrom(),
-                        ""
+                        "",
+                        inlineQuery.getLocation()
                 );
             }
             return;
@@ -220,7 +221,8 @@ public class CommandRegistry {
             this.commandRegistryMap.get(command).respondInlineQuery(
                     responder,
                     inlineQuery.getFrom(),
-                    arguments
+                    arguments,
+                    inlineQuery.getLocation()
             );
         }
     }

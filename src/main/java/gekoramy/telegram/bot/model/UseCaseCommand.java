@@ -6,6 +6,7 @@ import gekoramy.telegram.bot.responder.InlineCallbackQueryResponder;
 import gekoramy.telegram.bot.responder.InlineQueryResponder;
 import gekoramy.telegram.bot.responder.MessageResponder;
 import org.telegram.telegrambots.api.objects.Chat;
+import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
 
@@ -32,7 +33,7 @@ public class UseCaseCommand {
         boolean tmp;
 
         try {
-            tmp = this.getClass().getMethod("respondInlineQuery", InlineQueryResponder.class, User.class, String.class).getDeclaringClass() != UseCaseCommand.class;
+            tmp = this.getClass().getMethod("respondInlineQuery", InlineQueryResponder.class, User.class, String.class, Location.class).getDeclaringClass() != UseCaseCommand.class;
         } catch (NoSuchMethodException ignored) {
             tmp = false;
         }
@@ -78,7 +79,7 @@ public class UseCaseCommand {
      * Respond to a CallbackQuery sent by a message
      *
      * @param absSender used to toComplete the respond(s)
-     * @param query     callBackQuery
+     * @param query     callBackQuery parsed
      * @param user      client who sent the CallbackQuery
      * @param message   message which sent the CallbackQuery
      */
@@ -90,7 +91,7 @@ public class UseCaseCommand {
      * It will occur only if the bot supports inline query
      *
      * @param absSender used to toComplete the respond(s)
-     * @param query     callBackQuery
+     * @param query     callBackQuery parsed
      * @param user      client who sent the CallbackQuery
      */
     public void respondCallbackQuery(InlineCallbackQueryResponder absSender, Query query, User user) {
@@ -103,8 +104,9 @@ public class UseCaseCommand {
      * @param absSender used to toComplete the respond(s)
      * @param from      client
      * @param arguments arguments of a complete command
+     * @param location  user location
      */
-    public void respondInlineQuery(InlineQueryResponder absSender, User from, String arguments) {
+    public void respondInlineQuery(InlineQueryResponder absSender, User from, String arguments, Location location) {
     }
 
     @Override
