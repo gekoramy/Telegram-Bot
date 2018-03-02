@@ -28,6 +28,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
     public CallbackQueryResponder(TimedSender sender, Monitor monitor, String cmd, CallbackQuery cbq) {
         super(sender, monitor, cmd, cbq.getMessage());
         this.cbq = cbq;
+        super.user = cbq.getFrom();
     }
 
     private void requestExecute(BotApiMethod<? extends Serializable> method) {
@@ -47,7 +48,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                             .setChatId(msg.getChatId())
             );
         }
-        monitor.sent(cbq.getFrom(), editMessageText);
+        monitor.sent(user, editMessageText);
         return this;
     }
 
@@ -57,7 +58,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                         .setMessageId(msg.getMessageId())
                         .setChatId(msg.getChatId())
         );
-        monitor.sent(cbq.getFrom(), editMessageReplyMarkup);
+        monitor.sent(user, editMessageReplyMarkup);
         return this;
     }
 
@@ -67,7 +68,7 @@ public class CallbackQueryResponder extends MessageResponder implements Callback
                         .setMessageId(msg.getMessageId())
                         .setChatId(msg.getChatId())
         );
-        monitor.sent(cbq.getFrom(), editMessageLiveLocation);
+        monitor.sent(user, editMessageLiveLocation);
         return this;
     }
 

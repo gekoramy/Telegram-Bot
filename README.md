@@ -5,13 +5,13 @@
 <dependency>
     <groupId>io.github.gekoramy</groupId>
     <artifactId>telegrambots-usecases</artifactId>
-    <version>3.6.0.1</version>
+    <version>3.6.0.2</version>
 </dependency>
 ```
 
 **Gradle**
 ```gradle
-compile "io.github.gekoramy:telegrambots-usecases:3.6.0.1"
+compile "io.github.gekoramy:telegrambots-usecases:3.6.0.2"
 ```
 
 ## Examples

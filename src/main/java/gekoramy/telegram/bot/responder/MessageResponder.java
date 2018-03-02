@@ -7,6 +7,7 @@ import gekoramy.telegram.bot.responder.type.MessageSender;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.User;
 
 import java.io.Serializable;
 
@@ -18,11 +19,14 @@ import java.io.Serializable;
  * @since 02/2018
  */
 public class MessageResponder extends AbsResponder implements MessageSender {
+
     final Message msg;
+    User user;
 
     public MessageResponder(TimedSender sender, Monitor monitor, String cmd, Message msg) {
         super(sender, monitor, cmd);
         this.msg = msg;
+        this.user = msg.getFrom();
     }
 
     private void requestExecute(BotApiMethod<? extends Serializable> method) {
@@ -31,37 +35,37 @@ public class MessageResponder extends AbsResponder implements MessageSender {
 
     public MessageResponder send(SendMessage sendMessage) {
         requestExecute(sendMessage.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendMessage);
+        monitor.sent(user, sendMessage);
         return this;
     }
 
     public MessageResponder send(SendVenue sendVenue) {
         requestExecute(sendVenue.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendVenue);
+        monitor.sent(user, sendVenue);
         return this;
     }
 
     public MessageResponder send(SendLocation sendLocation) {
         requestExecute(sendLocation.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendLocation);
+        monitor.sent(user, sendLocation);
         return this;
     }
 
     public MessageResponder send(SendChatAction sendChatAction) {
         requestExecute(sendChatAction.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendChatAction);
+        monitor.sent(user, sendChatAction);
         return this;
     }
 
     public MessageResponder send(SendContact sendContact) {
        requestExecute(sendContact.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendContact);
+        monitor.sent(user, sendContact);
         return this;
     }
 
     public MessageResponder send(SendGame sendGame) {
         requestExecute(sendGame.setChatId(msg.getChatId()));
-        monitor.sent(msg.getFrom(), sendGame);
+        monitor.sent(user, sendGame);
         return this;
     }
 
